@@ -14,13 +14,13 @@ function createBoxElement(key, width, height, margin) {
     box.className = "TextBoks";
 
     // Add double-click event to make the text editable
-    box.addEventListener('dblclick', function() {
+    box.addEventListener('dblclick', function () {
         box.contentEditable = 'true'; // Make the content editable
         box.focus(); // Focus on the box so the user can start typing
     });
 
     // Add blur event to disable editing and save changes
-    box.addEventListener('blur', function() {
+    box.addEventListener('blur', function () {
         box.contentEditable = 'false'; // Disable editing
         key = box.textContent; // Update the key if needed
         // Optionally, you could also trigger a function here to save changes
@@ -70,7 +70,12 @@ function generateBoxes(hierarchy, container, scaleFactor = 1) {
         const levelContainer = createLevelContainer(margin);
 
         const connectorBox = createConnectorBox(30 * scaleFactor);
-        levelContainer.appendChild(connectorBox);
+        let div_for_connectorBoxAnd_DeleteButton = document.createElement("div")
+        div_for_connectorBoxAnd_DeleteButton.appendChild(connectorBox)
+        let deletebutten = DeleteButtonSection()
+        div_for_connectorBoxAnd_DeleteButton.appendChild(deletebutten)
+        levelContainer.appendChild(div_for_connectorBoxAnd_DeleteButton);
+
         levelContainer.appendChild(box);
 
         // Check if this node is a leaf (i.e., has no children)
@@ -83,7 +88,7 @@ function generateBoxes(hierarchy, container, scaleFactor = 1) {
 
         if (!isLeaf) {
             const connectorBox = createConnectorBox(30 * scaleFactor);
-            levelContainer.appendChild(connectorBox);
+            levelContainer.appendChild(connectorBox)
             const childContainer = document.createElement('div');
             childContainer.style.display = 'flex';
             childContainer.style.justifyContent = 'center';
@@ -127,12 +132,12 @@ function createInnerContainer() {
     let context_window = document.createElement("textarea")
     // Set minimum and maximum width and height
     let scaleFactor = 4
-    context_window.style.width = `${50*scaleFactor}px`;
-    context_window.style.height = `${50*scaleFactor}px`;
-    context_window.style.minWidth = `${50*scaleFactor}px`;
-    context_window.style.minHeight =`${50*scaleFactor}px`;
-    context_window.style.maxWidth = `${50*scaleFactor}px`;
-    context_window.style.maxHeight = `${50*scaleFactor}px`;
+    context_window.style.width = `${50 * scaleFactor}px`;
+    context_window.style.height = `${50 * scaleFactor}px`;
+    context_window.style.minWidth = `${50 * scaleFactor}px`;
+    context_window.style.minHeight = `${50 * scaleFactor}px`;
+    context_window.style.maxWidth = `${50 * scaleFactor}px`;
+    context_window.style.maxHeight = `${50 * scaleFactor}px`;
 
     // Add the class name
     context_window.className = 'contextwindue';
@@ -176,7 +181,7 @@ async function GenerateNewLayerUnderExistingConcept(where, firstWord) {
     const nearestDiv = where.closest('.Innercontainer');
 
     let context = nearestDiv.firstElementChild.value
-    context =": and the Context is:  " +context
+    context = ": and the Context is:  " + context
     console.log(context)
 
     let hierarchy = await iterativePrompt(initialPrompt, 1, firstWord, context);
@@ -217,8 +222,15 @@ function createButtonForGeneratingNewLowerConcept() {
     return div_container
 }
 
-function Gethiraky() {
-
+function DeleteButtonSection() {
+    let button = document.createElement("div")
+    button.textContent = "X"
+    button.style.font = "5px"
+    button.onclick = () => {
+        const nearestDiv = button.closest('.levelcontainer');
+        nearestDiv.remove();
+    }
+    return button
 }
 
 
