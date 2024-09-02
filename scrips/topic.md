@@ -1,0 +1,12 @@
+- computer
+    - CPU
+        - Alu
+        - Core
+        - Cache
+    - Motherboard
+        - Circuit Board
+        - Printed Circuit Board
+        - PCBA
+    - RAM
+        - Cache
+        - Buffer
