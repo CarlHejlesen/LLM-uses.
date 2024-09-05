@@ -60,6 +60,15 @@ function createVerticalLine(height) {
     verticalLine.style.backgroundColor = 'black';
     return verticalLine;
 }
+function createLayerDiv(){
+    let div=document.createElement("div")
+    div.className="LayerDiv"
+
+  //  div.style.display = 'flex';
+   // div.style.justifyContent = 'center';
+    //div.style.alignItems = 'center';
+    return div
+}
 
 // Function to generate boxes based on hierarchy
 async function generateBoxes(hierarchy, container, scaleFactor = 1) {
@@ -70,23 +79,24 @@ async function generateBoxes(hierarchy, container, scaleFactor = 1) {
 
         const conceptBox = ReturnsCoceptDiv(key)
         const levelContainer = createLevelContainer(margin);
+        const layerdiv = createLayerDiv()
 
-        levelContainer.appendChild(conceptBox);
+       layerdiv.appendChild(conceptBox);
         let button = await MakeButtonForNewConceptNotAI();
 
-        levelContainer.appendChild(button)
+        conceptBox.appendChild(button)
         // Check if this node is a leaf (i.e., has no children)
         const isLeaf = Object.keys(hierarchy[key]).length === 0;
 
         if (isLeaf) {
             const button = createButtonForGeneratingNewLowerConcept();
-            levelContainer.appendChild(button);
+            layerdiv.appendChild(button);
         }
 
         if (!isLeaf) {
-            isNotLeafRepeatReqursion(levelContainer, hierarchy, key, scaleFactor)
+            isNotLeafRepeatReqursion(layerdiv, hierarchy, key, scaleFactor)
         }
-
+        levelContainer.appendChild(layerdiv)
         container.appendChild(levelContainer);
     }
 }
@@ -448,6 +458,7 @@ const hierarchy = {
 
 async function MakeButtonForNewConceptNotAI() {
     let button = document.createElement("div")
+    button.className="New Concept button"
     button.textContent = "New Concept"
     button.onclick = () => {
         const nearestDiv = button.closest('.levelcontainer');
