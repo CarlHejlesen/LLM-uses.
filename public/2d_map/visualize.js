@@ -1,5 +1,5 @@
 // Function to create and style a box element
-function createBoxElement(key, width, height, margin) {
+function createBoxElement(key, width, height) {
     const box = document.createElement('div');
     box.style.border = '1px solid black';
     box.style.padding = '10px';
@@ -47,6 +47,8 @@ function createLevelContainer(margin) {
     levelContainer.style.marginBottom = `${margin * 2}px`; // Add some space below each level
     levelContainer.style.marginRight = "20px";
     levelContainer.className = "levelcontainer";
+
+
     return levelContainer;
 }
 
@@ -60,24 +62,19 @@ function createVerticalLine(height) {
 }
 
 // Function to generate boxes based on hierarchy
-function generateBoxes(hierarchy, container, scaleFactor = 1) {
+async function generateBoxes(hierarchy, container, scaleFactor = 1) {
     for (let key in hierarchy) {
         const width = 150 * scaleFactor;
         const height = 100 * scaleFactor;
         const margin = 10 * scaleFactor;
 
-        const box = createBoxElement(key, width, height, margin);
+        const conceptBox = ReturnsCoceptDiv(key)
         const levelContainer = createLevelContainer(margin);
 
-        const connectorBox = createConnectorBox(30 * scaleFactor);
-        let div_for_connectorBoxAnd_DeleteButton = document.createElement("div")
-        div_for_connectorBoxAnd_DeleteButton.appendChild(connectorBox)
-        let deletebutten = DeleteButtonSection()
-        div_for_connectorBoxAnd_DeleteButton.appendChild(deletebutten)
-        levelContainer.appendChild(div_for_connectorBoxAnd_DeleteButton);
+        levelContainer.appendChild(conceptBox);
+        let button = await MakeButtonForNewConceptNotAI();
 
-        levelContainer.appendChild(box);
-
+        levelContainer.appendChild(button)
         // Check if this node is a leaf (i.e., has no children)
         const isLeaf = Object.keys(hierarchy[key]).length === 0;
 
@@ -87,25 +84,60 @@ function generateBoxes(hierarchy, container, scaleFactor = 1) {
         }
 
         if (!isLeaf) {
-            const connectorBox = createConnectorBox(30 * scaleFactor);
-            levelContainer.appendChild(connectorBox)
-            const childContainer = document.createElement('div');
-            childContainer.style.display = 'flex';
-            childContainer.style.justifyContent = 'center';
-            childContainer.style.width = '100%';
-
-            const verticalLine = createVerticalLine(30 * scaleFactor);
-            levelContainer.appendChild(verticalLine);
-
-            generateBoxes(hierarchy[key], childContainer, scaleFactor);
-
-            levelContainer.appendChild(childContainer);
+            isNotLeafRepeatReqursion(levelContainer, hierarchy, key, scaleFactor)
         }
 
         container.appendChild(levelContainer);
     }
 }
 
+async function makeConceptboxBellow(container) {
+
+    const margin = 10 * scaleFactor;
+
+
+
+    const conceptBox = ReturnsCoceptDiv("New boks!");
+
+    const levelContainer = createLevelContainer(margin);
+    let verticalLine = createVerticalLine(30 * scaleFactor);
+    levelContainer.appendChild(verticalLine)
+
+    levelContainer.appendChild(conceptBox);
+    //  let button = await MakeButtonForNewConceptNotAI();
+
+
+    // Check if this node is a leaf (i.e., has no children)
+
+
+    const button = await createButtonForGeneratingNewLowerConcept();
+
+
+    let notaibox = await MakeButtonForNewConceptNotAI()
+
+    button.prepend(notaibox)
+
+    levelContainer.appendChild(button);
+
+
+    container.appendChild(levelContainer);
+
+}
+
+function isNotLeafRepeatReqursion(levelContainer, hierarchy, key, scaleFactor) {
+
+    const childContainer = document.createElement('div');
+    childContainer.style.display = 'flex';
+    childContainer.style.justifyContent = 'center';
+    childContainer.style.width = '100%';
+
+    const verticalLine = createVerticalLine(30 * scaleFactor);
+    levelContainer.appendChild(verticalLine);
+
+    generateBoxes(hierarchy[key], childContainer, scaleFactor);
+
+    levelContainer.appendChild(childContainer);
+}
 
 
 // Function to create the outer container
@@ -196,7 +228,7 @@ function createButtonForGeneratingNewLowerConcept() {
     let div_container = document.createElement("div")
     let input = document.createElement("input")
     input.value = "Context boks"
-
+    div_container.className = "inputcontextDiv"
     let button = document.createElement("div")
     button.textContent = "Generate New LEVEL!"
     button.style.border = '1px solid black';
@@ -414,6 +446,21 @@ const hierarchy = {
     }
 };
 
+async function MakeButtonForNewConceptNotAI() {
+    let button = document.createElement("div")
+    button.textContent = "New Concept"
+    button.onclick = () => {
+        const nearestDiv = button.closest('.levelcontainer');
+
+        makeConceptboxBellow(nearestDiv)
+        var inputContextDiv = nearestDiv.querySelector('div.inputcontextDiv');
+        inputContextDiv.remove();
+
+    }
+    return button
+}
+
+
 const outerContainer = createOuterContainer();
 const container = createInnerContainer();
 
@@ -441,3 +488,68 @@ window.onload = function () {
         scrollToCenterOfPage();
     }, 100); // Delay the scroll to allow rendering to complete
 };
+
+
+
+
+
+function ReturnsCoceptDiv(text) {
+    const width = 150 * scaleFactor;
+    const height = 100 * scaleFactor;
+    let conceptBox = createBoxElement(text, width, height)
+
+    let conceptDiv = document.createElement("div")
+    conceptDiv.className = "ConceptDiv"
+
+
+
+    conceptDiv.style.display = 'flex';
+    conceptDiv.style.flexDirection = 'column';
+    conceptDiv.style.alignItems = 'center';
+
+
+    const connectorBox = createConnectorBox(30 * scaleFactor);
+
+    conceptDiv.appendChild(connectorBox)
+    let deletebutten = DeleteButtonSection()
+    conceptDiv.appendChild(deletebutten)
+
+
+    let div_for_conceptbox_buttons = document.createElement("div")
+    div_for_conceptbox_buttons.className = "Div_for_concpetButtons"
+
+    div_for_conceptbox_buttons.style.display = 'flex';
+    div_for_conceptbox_buttons.style.justifyContent = 'center';
+    div_for_conceptbox_buttons.style.alignItems = 'center';
+
+
+    let buttonCreateConceptONsameLevelLeft = createConceptLeft()
+    div_for_conceptbox_buttons.appendChild(buttonCreateConceptONsameLevelLeft)
+
+    let buttonCreateConceptONsameLevelRight = createConceptRight()
+    div_for_conceptbox_buttons.appendChild(conceptBox)
+    div_for_conceptbox_buttons.appendChild(buttonCreateConceptONsameLevelRight)
+
+
+    conceptDiv.appendChild(div_for_conceptbox_buttons)
+
+    const connectorBox2 = createConnectorBox(30 * scaleFactor);
+
+    conceptDiv.appendChild(connectorBox2)
+
+    return conceptDiv
+}
+
+
+function createConceptLeft() {
+    let button = document.createElement("div")
+    button.textContent = "+"
+    button.style.font = "20px"
+    return button
+}
+function createConceptRight() {
+    let button = document.createElement("div")
+    button.textContent = "+"
+    button.style.font = "20px"
+    return button
+}
