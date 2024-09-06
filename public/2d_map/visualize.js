@@ -12,6 +12,10 @@ function createBoxElement(key, width, height) {
     box.style.alignItems = 'center'; // Centrerer indhold lodret
     box.textContent = key;
     box.className = "TextBoks";
+    box.style.fontSize = "20px";
+    box.style.fontWeight = "bold";
+
+    let oldKey = key; // Store the original key
 
     // Add double-click event to make the text editable
     box.addEventListener('dblclick', function () {
@@ -22,12 +26,38 @@ function createBoxElement(key, width, height) {
     // Add blur event to disable editing and save changes
     box.addEventListener('blur', function () {
         box.contentEditable = 'false'; // Disable editing
-        key = box.textContent; // Update the key if needed
-        // Optionally, you could also trigger a function here to save changes
+
+        // Get the updated key
+        let newKey = box.textContent.trim(); // Remove any extra spaces from the text
+
+        if (newKey !== oldKey) {
+            // Get parentKey by navigating to the nearest relevant container (ConceptDiv or levelcontainer)
+            let leveldiv = box.closest(".levelcontainer").parentElement.parentElement
+            
+            console.log(leveldiv)
+            const parentDiv = leveldiv.querySelector(".ConceptDiv");
+            if (parentDiv) {
+                const parentTextBox = parentDiv.querySelector(".TextBoks"); // Find the parent TextBoks
+                if (parentTextBox) {
+                    let parentKey = parentTextBox.textContent.trim(); // Get the parent key text
+
+                    // Now call the changeDataInGlobalHierarchy function
+                    changeDataInGlobalHierarchy(parentKey, oldKey, newKey);
+
+                    // Update oldKey to the newKey after the change is successful
+                    oldKey = newKey;
+                } else {
+                    console.error("Could not find the parent key.");
+                }
+            } else {
+                console.error("Could not find the parent container.");
+            }
+        }
     });
 
     return box;
 }
+
 
 // Function to create a connector box
 function createConnectorBox(height, width = '10px') {
@@ -83,17 +113,20 @@ async function generateBoxes(hierarchy, container, scaleFactor = 1) {
 
         layerdiv.appendChild(conceptBox);
         let button = await MakeButtonForNewConceptNotAI();
-
+        //! Her fejler den. Fordi denne her burde splittes op i leaf eller ikke leaf. Til 2 forskellige funktioner.
         conceptBox.appendChild(button)
         // Check if this node is a leaf (i.e., has no children)
         const isLeaf = Object.keys(hierarchy[key]).length === 0;
 
         if (isLeaf) {
+            // Hvis det er en leaf, Så Skal den tilføje til levelkontainer
             const button = createButtonForGeneratingNewLowerConcept();
-            layerdiv.appendChild(button);
+
+            conceptBox.appendChild(button);
         }
         levelContainer.appendChild(layerdiv)
         if (!isLeaf) {
+            // Hvis det ikke leaf så tilføj buttun til layerdiv.
             isNotLeafRepeatReqursion(levelContainer, hierarchy, key, scaleFactor)
         }
 
@@ -101,17 +134,65 @@ async function generateBoxes(hierarchy, container, scaleFactor = 1) {
     }
 }
 
+function MakeChildcontainer() {
+    const childContainer = document.createElement('div');
+    childContainer.style.display = 'flex';
+    childContainer.style.justifyContent = 'center';
+    childContainer.style.width = '100%';
+    childContainer.className = "childContainer"
+    return childContainer
+
+}
+
+
+
+
 async function makeConceptboxBellow(container) {
 
     const margin = 10 * scaleFactor;
+    let nameForbox = "New Boks!2"
 
 
 
-    const conceptBox = ReturnsCoceptDiv("New boks!");
+
+
+    // Start at the container (levelcontainer) and navigate down
+    const conceptDiv = container.querySelector(".ConceptDiv");
+    
+    if (!conceptDiv) {
+        console.error("Could not find the '.ConceptDiv'. Please check the DOM structure.");
+        return;
+    }
+
+    // Find the TextBoks inside the Div_for_concpetButtons
+    const textBoksElement = conceptDiv.querySelector(".Div_for_concpetButtons .TextBoks");
+    
+    if (!textBoksElement) {
+        console.error("Could not find the '.TextBoks' inside '.Div_for_concpetButtons'.");
+        return;
+    }
+
+    // Get the parent key from the TextBoks
+    let nameOfparentkey = textBoksElement.textContent.trim();
+    if (!nameOfparentkey) {
+        console.error("TextBoks contains no text or invalid value.");
+        return;
+    }
+
+    console.log('Parent Key:', nameOfparentkey);
+
+    // Insert the new concept into the global hierarchy via the server API
+    insertDataIntoGlobalHierarchy(nameOfparentkey, nameForbox);
+
+
+
+
+
+
+    const conceptBox = ReturnsCoceptDiv(nameForbox);
 
     const levelContainer = createLevelContainer(margin);
-    let verticalLine = createVerticalLine(30 * scaleFactor);
-    levelContainer.appendChild(verticalLine)
+
 
     levelContainer.appendChild(conceptBox);
     //  let button = await MakeButtonForNewConceptNotAI();
@@ -128,9 +209,12 @@ async function makeConceptboxBellow(container) {
     button.prepend(notaibox)
 
     levelContainer.appendChild(button);
+    let childContainer = MakeChildcontainer()
+    let verticalLine = createVerticalLine(30 * scaleFactor);
+    levelContainer.appendChild(verticalLine)
+    childContainer.appendChild(levelContainer)
 
-
-    container.appendChild(levelContainer);
+    container.appendChild(childContainer);
 
 }
 
@@ -161,6 +245,7 @@ function createOuterContainer() {
     outerContainer.style.display = 'flex';
     outerContainer.style.justifyContent = 'center';
     outerContainer.style.alignItems = 'center';
+    outerContainer.className = "outerContainer"
     return outerContainer;
 }
 
@@ -236,6 +321,7 @@ async function GenerateNewLayerUnderExistingConcept(where, firstWord) {
 
 }
 function createButtonForGeneratingNewLowerConcept() {
+
     let div_container = document.createElement("div")
     let input = document.createElement("input")
     input.value = "Context boks"
@@ -456,6 +542,16 @@ const hierarchy = {
         "Storage": {}
     }
 };
+let globalHierarchy ={}
+globalHierarchy.hierarchy
+
+function insertDataIntoGlobalHierarchy(){
+
+}
+function RemoveDataFromGlobalHirarchy() {
+    
+}
+
 
 function MakeButtonForNewConceptNotAI() {
     let button = document.createElement("div")
@@ -463,6 +559,9 @@ function MakeButtonForNewConceptNotAI() {
     button.textContent = "New Concept"
     button.onclick = () => {
         const nearestDiv = button.closest('.levelcontainer');
+
+        let verticalLine = createVerticalLine(30 * scaleFactor);
+        nearestDiv.appendChild(verticalLine)
 
         makeConceptboxBellow(nearestDiv)
         var inputContextDiv = nearestDiv.querySelector('div.inputcontextDiv');
@@ -507,7 +606,7 @@ window.onload = function () {
 
 function ReturnsCoceptDiv(text) {
     const width = 150 * scaleFactor;
-    const height = 100 * scaleFactor;
+    const height = 70 * scaleFactor;
     let conceptBox = createBoxElement(text, width, height)
 
     let conceptDiv = document.createElement("div")
@@ -610,4 +709,84 @@ function createConceptRight() {
     };
 
     return button;
+}
+
+
+
+function MakeReglerOgkarakteristikaBoks() {
+
+}
+
+// Function to create and style a box element  R regler og Karakterisktika.
+function createRKBoks(key, width, height) {
+    const box = document.createElement('div');
+    box.style.border = '1px solid black';
+    box.style.padding = '10px';
+    box.style.width = `${width}px`;
+    box.style.height = `${height}px`;
+    box.style.boxSizing = 'border-box';
+    box.style.textAlign = 'center';
+    box.style.display = 'flex'; // Skift fra inline-block til flex
+    box.style.justifyContent = 'center'; // Centrerer indhold vandret
+    box.style.alignItems = 'center'; // Centrerer indhold lodret
+    box.textContent = key;
+    box.className = "TextBoks";
+
+    // Add double-click event to make the text editable
+    box.addEventListener('dblclick', function () {
+        box.contentEditable = 'true'; // Make the content editable
+        box.focus(); // Focus on the box so the user can start typing
+    });
+
+    // Add blur event to disable editing and save changes
+    box.addEventListener('blur', function () {
+        box.contentEditable = 'false'; // Disable editing
+        key = box.textContent; // Update the key if needed
+        // Optionally, you could also trigger a function here to save changes
+    });
+
+    return box;
+}
+
+
+
+
+// Function to insert data into globalHierarchy via API
+function insertDataIntoGlobalHierarchy(parentKey, newKey) {
+    fetch("/PostObject", {
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ parentKey, newKey })
+    })
+    .then(response => response.json())
+    .then(data => console.log(data.message))
+    .catch(error => console.error('Error:', error));
+}
+// Function to remove data from globalHierarchy via API
+function RemoveDataFromGlobalHierarchy(parentKey, keyToRemove) {
+    fetch("/DeleteObject", {
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ parentKey, keyToRemove })
+    })
+    .then(response => response.json())
+    .then(data => console.log(data.message))
+    .catch(error => console.error('Error:', error));
+}
+// Function to change object in globalHierarchy via API
+function changeDataInGlobalHierarchy(parentKey, oldKey, newKey) {
+    fetch("/ChangeObject", {
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ parentKey, oldKey, newKey })
+    })
+    .then(response => response.json())
+    .then(data => console.log(data.message))
+    .catch(error => console.error('Error:', error));
 }

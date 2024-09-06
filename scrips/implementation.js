@@ -128,3 +128,7 @@ function writeHierarchyToFile(hierarchy, indentLevel = 0, parentWord = null) {
   let context =": What is inside the computer"
   // Start the iterative process
   iterativePrompt(initialPrompt, 2, firstWord, context);
+
+
+
+  

@@ -1,0 +1,38 @@
+{
+  "hierarchy": {
+    "computer": {
+      "CPU": {
+        "Alu": {
+          "Transistor": {
+            "Gate": {
+              "AND": {},
+              "OR": {},
+              "NOT": {}
+            },
+            "Diode": {},
+            "Resistor": {}
+          },
+          "Gate": {},
+          "Wire": {}
+        },
+        "Core": {},
+        "Cache": {},
+        "Registers": {},
+        "goood": {
+          "New Boks!2": {}
+        }
+      },
+      "Motherboard": {
+        "Circuit Board": {},
+        "Printed Circuit Board": {},
+        "PCB": {}
+      },
+      "RAM": {
+        "DRAM": {},
+        "SDRAM": {},
+        "SRAM": {}
+      },
+      "Storage": {}
+    }
+  }
+}

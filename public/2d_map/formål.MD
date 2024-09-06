@@ -17,6 +17,11 @@
 - Skal et kunne et punkt ad gangen implementere via regler eller karakteristika
 
 
+## Bug
+
+Ved nyt concept knappen er der ikke taget hensyn til og det er en leaf eller om det ikke er.
+Lige nu ligger den bare altid til nærmeste levelcontainer.
+Hvis det ikke er en leaf burde den lægge til Childcontainer istedet for.
 
 
 
