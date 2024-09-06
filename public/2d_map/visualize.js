@@ -60,12 +60,12 @@ function createVerticalLine(height) {
     verticalLine.style.backgroundColor = 'black';
     return verticalLine;
 }
-function createLayerDiv(){
-    let div=document.createElement("div")
-    div.className="LayerDiv"
+function createLayerDiv() {
+    let div = document.createElement("div")
+    div.className = "LayerDiv"
 
-  //  div.style.display = 'flex';
-   // div.style.justifyContent = 'center';
+    //  div.style.display = 'flex';
+    // div.style.justifyContent = 'center';
     //div.style.alignItems = 'center';
     return div
 }
@@ -81,7 +81,7 @@ async function generateBoxes(hierarchy, container, scaleFactor = 1) {
         const levelContainer = createLevelContainer(margin);
         const layerdiv = createLayerDiv()
 
-       layerdiv.appendChild(conceptBox);
+        layerdiv.appendChild(conceptBox);
         let button = await MakeButtonForNewConceptNotAI();
 
         conceptBox.appendChild(button)
@@ -92,11 +92,11 @@ async function generateBoxes(hierarchy, container, scaleFactor = 1) {
             const button = createButtonForGeneratingNewLowerConcept();
             layerdiv.appendChild(button);
         }
-
-        if (!isLeaf) {
-            isNotLeafRepeatReqursion(layerdiv, hierarchy, key, scaleFactor)
-        }
         levelContainer.appendChild(layerdiv)
+        if (!isLeaf) {
+            isNotLeafRepeatReqursion(levelContainer, hierarchy, key, scaleFactor)
+        }
+
         container.appendChild(levelContainer);
     }
 }
@@ -140,6 +140,7 @@ function isNotLeafRepeatReqursion(levelContainer, hierarchy, key, scaleFactor) {
     childContainer.style.display = 'flex';
     childContainer.style.justifyContent = 'center';
     childContainer.style.width = '100%';
+    childContainer.className = "childContainer"
 
     const verticalLine = createVerticalLine(30 * scaleFactor);
     levelContainer.appendChild(verticalLine);
@@ -456,9 +457,9 @@ const hierarchy = {
     }
 };
 
-async function MakeButtonForNewConceptNotAI() {
+function MakeButtonForNewConceptNotAI() {
     let button = document.createElement("div")
-    button.className="New Concept button"
+    button.className = "New Concept button"
     button.textContent = "New Concept"
     button.onclick = () => {
         const nearestDiv = button.closest('.levelcontainer');
@@ -518,14 +519,15 @@ function ReturnsCoceptDiv(text) {
     conceptDiv.style.flexDirection = 'column';
     conceptDiv.style.alignItems = 'center';
 
-
+    // Vi laver conncetor box
     const connectorBox = createConnectorBox(30 * scaleFactor);
 
     conceptDiv.appendChild(connectorBox)
+    //Vi laver slet knap til concept
     let deletebutten = DeleteButtonSection()
     conceptDiv.appendChild(deletebutten)
 
-
+    // Vi laver diven som concept boxen er i .
     let div_for_conceptbox_buttons = document.createElement("div")
     div_for_conceptbox_buttons.className = "Div_for_concpetButtons"
 
@@ -533,7 +535,7 @@ function ReturnsCoceptDiv(text) {
     div_for_conceptbox_buttons.style.justifyContent = 'center';
     div_for_conceptbox_buttons.style.alignItems = 'center';
 
-
+    // Venstre og højre plus
     let buttonCreateConceptONsameLevelLeft = createConceptLeft()
     div_for_conceptbox_buttons.appendChild(buttonCreateConceptONsameLevelLeft)
 
@@ -553,14 +555,59 @@ function ReturnsCoceptDiv(text) {
 
 
 function createConceptLeft() {
-    let button = document.createElement("div")
-    button.textContent = "+"
-    button.style.font = "20px"
-    return button
+    let button = document.createElement("div");
+    button.textContent = "+";
+    button.style.fontSize = "20px";
+    button.style.cursor = "pointer";
+
+    button.onclick = () => {
+        // Find den nærmeste .levelcontainer, som er forælder til denne knap
+        const currentLevelContainer = button.closest('.levelcontainer');
+
+        // Opret en ny levelcontainer til venstre
+        const newLevelContainer = createLevelContainer(10); // Brug en margin på 10 eller hvad du ønsker
+        const newConceptBox = ReturnsCoceptDiv("Nyt koncept"); // Du kan ændre teksten, hvis det skal være noget dynamisk
+
+
+        // Tilføj den nye boks til den nye levelcontainer
+        newLevelContainer.appendChild(newConceptBox);
+        const button22 = createButtonForGeneratingNewLowerConcept();
+
+        newLevelContainer.appendChild(button22)
+        let make_new_concept_button = MakeButtonForNewConceptNotAI()
+
+        newLevelContainer.appendChild(make_new_concept_button)
+
+        // Indsæt den nye levelcontainer før den eksisterende levelcontainer
+        currentLevelContainer.parentNode.insertBefore(newLevelContainer, currentLevelContainer);
+    };
+
+    return button;
 }
 function createConceptRight() {
-    let button = document.createElement("div")
-    button.textContent = "+"
-    button.style.font = "20px"
-    return button
+    let button = document.createElement("div");
+    button.textContent = "+";
+    button.style.fontSize = "20px";
+    button.style.cursor = "pointer";
+
+    button.onclick = () => {
+        // Find den nærmeste .levelcontainer, som er forælder til denne knap
+        const currentLevelContainer = button.closest('.levelcontainer');
+
+        // Opret en ny levelcontainer til højre
+        const newLevelContainer = createLevelContainer(10); // Brug en margin på 10 eller hvad du ønsker
+        const newConceptBox = ReturnsCoceptDiv("Nyt koncept"); // Du kan ændre teksten, hvis det skal være noget dynamisk
+
+        // Tilføj den nye boks til den nye levelcontainer
+        newLevelContainer.appendChild(newConceptBox);
+        const button22 = createButtonForGeneratingNewLowerConcept();
+        newLevelContainer.appendChild(button22);
+        let make_new_concept_button = MakeButtonForNewConceptNotAI();
+        newLevelContainer.appendChild(make_new_concept_button);
+
+        // Indsæt den nye levelcontainer efter den eksisterende levelcontainer
+        currentLevelContainer.parentNode.insertBefore(newLevelContainer, currentLevelContainer.nextSibling);
+    };
+
+    return button;
 }
