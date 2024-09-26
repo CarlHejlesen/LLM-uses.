@@ -17,26 +17,22 @@
         },
         "Core": {},
         "Cache": {},
-        "Registers": {},
-        "pik": {
-          "New Boks!2": {
-            "New Boks!2": {}
-          }
-        }
+        "Registers": {
+          "New Boks!2": {}
+        },
+        "Bus": {}
+      },
+      "Motherboard": {
+        "Circuit Board": {},
+        "Printed Circuit Board": {},
+        "PCB": {}
       },
       "RAM": {
         "DRAM": {},
         "SDRAM": {},
         "SRAM": {}
       },
-      "Storage": {},
-      "FarBoard": {
-        "Circuit Board": {
-          "New Boks!2": {}
-        },
-        "Printed Circuit Board": {},
-        "PCB": {}
-      }
+      "Storage": {}
     }
   }
 }

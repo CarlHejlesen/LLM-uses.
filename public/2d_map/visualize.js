@@ -1,57 +1,25 @@
 // Function to create and style a box element
-function createBoxElement(key, width, height) {
+function createBoxElement(key) {
     const box = document.createElement('div');
-    box.style.border = '1px solid black';
-    box.style.padding = '10px';
-    box.style.width = `${width}px`;
-    box.style.height = `${height}px`;
-    box.style.boxSizing = 'border-box';
-    box.style.textAlign = 'center';
-    box.style.display = 'flex'; // Skift fra inline-block til flex
-    box.style.justifyContent = 'center'; // Centrerer indhold vandret
-    box.style.alignItems = 'center'; // Centrerer indhold lodret
+
     box.textContent = key;
     box.className = "TextBoks";
-    box.style.fontSize = "20px";
-    box.style.fontWeight = "bold";
 
-    let oldKey = key; // Store the original key
-
-    // Add double-click event to make the text editable
+    // Add event listeners for interactivity
     box.addEventListener('dblclick', function () {
-        box.contentEditable = 'true'; // Make the content editable
-        box.focus(); // Focus on the box so the user can start typing
+        box.contentEditable = 'true';
+        box.focus();
     });
 
-    // Add blur event to disable editing and save changes
     box.addEventListener('blur', function () {
-        box.contentEditable = 'false'; // Disable editing
+        box.contentEditable = 'false';
+        let newKey = box.textContent.trim();
 
-        // Get the updated key
-        let newKey = box.textContent.trim(); // Remove any extra spaces from the text
-
-        if (newKey !== oldKey) {
-            // Get parentKey by navigating to the nearest relevant container (ConceptDiv or levelcontainer)
-            let leveldiv = box.closest(".levelcontainer").parentElement.parentElement
-            
-            console.log(leveldiv)
-            const parentDiv = leveldiv.querySelector(".ConceptDiv");
-            if (parentDiv) {
-                const parentTextBox = parentDiv.querySelector(".TextBoks"); // Find the parent TextBoks
-                if (parentTextBox) {
-                    let parentKey = parentTextBox.textContent.trim(); // Get the parent key text
-
-                    // Now call the changeDataInGlobalHierarchy function
-                    changeDataInGlobalHierarchy(parentKey, oldKey, newKey);
-
-                    // Update oldKey to the newKey after the change is successful
-                    oldKey = newKey;
-                } else {
-                    console.error("Could not find the parent key.");
-                }
-            } else {
-                console.error("Could not find the parent container.");
-            }
+        if (newKey !== key) {
+            // Additional functionality to handle the key change
+            console.log('Key changed from', key, 'to', newKey);
+            // Update the key
+            key = newKey;
         }
     });
 
@@ -59,35 +27,25 @@ function createBoxElement(key, width, height) {
 }
 
 
+
 // Function to create a connector box
-function createConnectorBox(height, width = '10px') {
+function createConnectorBox() {
     const connectorBox = document.createElement('div');
-    connectorBox.style.width = width; // Narrow width for the connector
-    connectorBox.style.height = `${height}px`; // Thickness and length of the connector
-    connectorBox.style.backgroundColor = 'black';
+    connectorBox.className = "connectorbox"
     return connectorBox;
 }
 
 // Function to create a level container
-function createLevelContainer(margin) {
+function createLevelContainer() {
     const levelContainer = document.createElement('div');
-    levelContainer.style.display = 'flex';
-    levelContainer.style.flexDirection = 'column';
-    levelContainer.style.alignItems = 'center';
-    levelContainer.style.marginBottom = `${margin * 2}px`; // Add some space below each level
-    levelContainer.style.marginRight = "20px";
     levelContainer.className = "levelcontainer";
-
-
     return levelContainer;
 }
 
 // Function to create a vertical line
-function createVerticalLine(height) {
+function createVerticalLine() {
     const verticalLine = document.createElement('div');
-    verticalLine.style.width = '-webkit-fill-available'; // Full available width
-    verticalLine.style.height = `${height}px`;
-    verticalLine.style.backgroundColor = 'black';
+    verticalLine.className = "verticalline"
     return verticalLine;
 }
 function createLayerDiv() {
@@ -103,12 +61,10 @@ function createLayerDiv() {
 // Function to generate boxes based on hierarchy
 async function generateBoxes(hierarchy, container, scaleFactor = 1) {
     for (let key in hierarchy) {
-        const width = 150 * scaleFactor;
-        const height = 100 * scaleFactor;
-        const margin = 10 * scaleFactor;
+
 
         const conceptBox = ReturnsCoceptDiv(key)
-        const levelContainer = createLevelContainer(margin);
+        const levelContainer = createLevelContainer();
         const layerdiv = createLayerDiv()
 
         layerdiv.appendChild(conceptBox);
@@ -136,9 +92,6 @@ async function generateBoxes(hierarchy, container, scaleFactor = 1) {
 
 function MakeChildcontainer() {
     const childContainer = document.createElement('div');
-    childContainer.style.display = 'flex';
-    childContainer.style.justifyContent = 'center';
-    childContainer.style.width = '100%';
     childContainer.className = "childContainer"
     return childContainer
 
@@ -149,16 +102,10 @@ function MakeChildcontainer() {
 
 async function makeConceptboxBellow(container) {
 
-    const margin = 10 * scaleFactor;
     let nameForbox = "New Boks!2"
-
-
-
-
-
     // Start at the container (levelcontainer) and navigate down
     const conceptDiv = container.querySelector(".ConceptDiv");
-    
+
     if (!conceptDiv) {
         console.error("Could not find the '.ConceptDiv'. Please check the DOM structure.");
         return;
@@ -166,7 +113,7 @@ async function makeConceptboxBellow(container) {
 
     // Find the TextBoks inside the Div_for_concpetButtons
     const textBoksElement = conceptDiv.querySelector(".Div_for_concpetButtons .TextBoks");
-    
+
     if (!textBoksElement) {
         console.error("Could not find the '.TextBoks' inside '.Div_for_concpetButtons'.");
         return;
@@ -191,7 +138,7 @@ async function makeConceptboxBellow(container) {
 
     const conceptBox = ReturnsCoceptDiv(nameForbox);
 
-    const levelContainer = createLevelContainer(margin);
+    const levelContainer = createLevelContainer();
 
 
     levelContainer.appendChild(conceptBox);
@@ -210,7 +157,7 @@ async function makeConceptboxBellow(container) {
 
     levelContainer.appendChild(button);
     let childContainer = MakeChildcontainer()
-    let verticalLine = createVerticalLine(30 * scaleFactor);
+    let verticalLine = createVerticalLine();
     levelContainer.appendChild(verticalLine)
     childContainer.appendChild(levelContainer)
 
@@ -220,13 +167,8 @@ async function makeConceptboxBellow(container) {
 
 function isNotLeafRepeatReqursion(levelContainer, hierarchy, key, scaleFactor) {
 
-    const childContainer = document.createElement('div');
-    childContainer.style.display = 'flex';
-    childContainer.style.justifyContent = 'center';
-    childContainer.style.width = '100%';
-    childContainer.className = "childContainer"
-
-    const verticalLine = createVerticalLine(30 * scaleFactor);
+    const childContainer = MakeChildcontainer()
+    const verticalLine = createVerticalLine();
     levelContainer.appendChild(verticalLine);
 
     generateBoxes(hierarchy[key], childContainer, scaleFactor);
@@ -238,13 +180,6 @@ function isNotLeafRepeatReqursion(levelContainer, hierarchy, key, scaleFactor) {
 // Function to create the outer container
 function createOuterContainer() {
     const outerContainer = document.createElement('div');
-    outerContainer.style.position = 'absolute';
-    outerContainer.style.width = '20000px'; // Set a large enough fixed width to accommodate the content
-    outerContainer.style.height = '20000px'; // Set a large enough fixed height to accommodate the content
-    outerContainer.style.overflow = 'auto'; // Allow scrolling in both directions
-    outerContainer.style.display = 'flex';
-    outerContainer.style.justifyContent = 'center';
-    outerContainer.style.alignItems = 'center';
     outerContainer.className = "outerContainer"
     return outerContainer;
 }
@@ -252,26 +187,15 @@ function createOuterContainer() {
 // Function to create the inner container
 function createInnerContainer() {
     const container = document.createElement('div');
-    container.style.position = 'relative';
-    container.style.backgroundColor = '#f0f0f0'; // Light background for better visibility
-    container.style.padding = '50px'; // Some padding around the edges
-    container.style.boxSizing = 'border-box';
-    container.className = "Innercontainer"
-    let context_window = document.createElement("textarea")
-    // Set minimum and maximum width and height
-    let scaleFactor = 4
-    context_window.style.width = `${50 * scaleFactor}px`;
-    context_window.style.height = `${50 * scaleFactor}px`;
-    context_window.style.minWidth = `${50 * scaleFactor}px`;
-    context_window.style.minHeight = `${50 * scaleFactor}px`;
-    context_window.style.maxWidth = `${50 * scaleFactor}px`;
-    context_window.style.maxHeight = `${50 * scaleFactor}px`;
+    container.className = "InnerContainer";
 
-    // Add the class name
-    context_window.className = 'contextwindue';
-    container.appendChild(context_window)
+    let contextWindow = document.createElement("textarea");
+    contextWindow.className = 'contextWindow';
+
+    container.appendChild(contextWindow);
     return container;
 }
+
 
 // Scroll to the center of the page
 function scrollToCenterOfPage() {
@@ -323,12 +247,15 @@ async function GenerateNewLayerUnderExistingConcept(where, firstWord) {
 function createButtonForGeneratingNewLowerConcept() {
 
     let div_container = document.createElement("div")
-    let input = document.createElement("input")
-    input.value = "Context boks"
     div_container.className = "inputcontextDiv"
+    let input = document.createElement("input")
+
+    input.value = "Context boks"
+
     let button = document.createElement("div")
     button.textContent = "Generate New LEVEL!"
-    button.style.border = '1px solid black';
+    
+    button.className="newLevelButton"
     let disablebutton = false;
     button.onclick = () => {
         // Find den ovenstående søskende <div> (den med teksten "Bus")
@@ -542,14 +469,14 @@ const hierarchy = {
         "Storage": {}
     }
 };
-let globalHierarchy ={}
+let globalHierarchy = {}
 globalHierarchy.hierarchy
 
-function insertDataIntoGlobalHierarchy(){
+function insertDataIntoGlobalHierarchy() {
 
 }
 function RemoveDataFromGlobalHirarchy() {
-    
+
 }
 
 
@@ -560,7 +487,7 @@ function MakeButtonForNewConceptNotAI() {
     button.onclick = () => {
         const nearestDiv = button.closest('.levelcontainer');
 
-        let verticalLine = createVerticalLine(30 * scaleFactor);
+        let verticalLine = createVerticalLine();
         nearestDiv.appendChild(verticalLine)
 
         makeConceptboxBellow(nearestDiv)
@@ -605,9 +532,8 @@ window.onload = function () {
 
 
 function ReturnsCoceptDiv(text) {
-    const width = 150 * scaleFactor;
-    const height = 70 * scaleFactor;
-    let conceptBox = createBoxElement(text, width, height)
+
+    let conceptBox = createBoxElement(text)
 
     let conceptDiv = document.createElement("div")
     conceptDiv.className = "ConceptDiv"
@@ -619,7 +545,7 @@ function ReturnsCoceptDiv(text) {
     conceptDiv.style.alignItems = 'center';
 
     // Vi laver conncetor box
-    const connectorBox = createConnectorBox(30 * scaleFactor);
+    const connectorBox = createConnectorBox();
 
     conceptDiv.appendChild(connectorBox)
     //Vi laver slet knap til concept
@@ -645,7 +571,7 @@ function ReturnsCoceptDiv(text) {
 
     conceptDiv.appendChild(div_for_conceptbox_buttons)
 
-    const connectorBox2 = createConnectorBox(30 * scaleFactor);
+    const connectorBox2 = createConnectorBox();
 
     conceptDiv.appendChild(connectorBox2)
 
@@ -664,7 +590,7 @@ function createConceptLeft() {
         const currentLevelContainer = button.closest('.levelcontainer');
 
         // Opret en ny levelcontainer til venstre
-        const newLevelContainer = createLevelContainer(10); // Brug en margin på 10 eller hvad du ønsker
+        const newLevelContainer = createLevelContainer(); // Brug en margin på 10 eller hvad du ønsker
         const newConceptBox = ReturnsCoceptDiv("Nyt koncept"); // Du kan ændre teksten, hvis det skal være noget dynamisk
 
 
@@ -694,7 +620,7 @@ function createConceptRight() {
         const currentLevelContainer = button.closest('.levelcontainer');
 
         // Opret en ny levelcontainer til højre
-        const newLevelContainer = createLevelContainer(10); // Brug en margin på 10 eller hvad du ønsker
+        const newLevelContainer = createLevelContainer(); // Brug en margin på 10 eller hvad du ønsker
         const newConceptBox = ReturnsCoceptDiv("Nyt koncept"); // Du kan ændre teksten, hvis det skal være noget dynamisk
 
         // Tilføj den nye boks til den nye levelcontainer
@@ -760,9 +686,9 @@ function insertDataIntoGlobalHierarchy(parentKey, newKey) {
         },
         body: JSON.stringify({ parentKey, newKey })
     })
-    .then(response => response.json())
-    .then(data => console.log(data.message))
-    .catch(error => console.error('Error:', error));
+        .then(response => response.json())
+        .then(data => console.log(data.message))
+        .catch(error => console.error('Error:', error));
 }
 // Function to remove data from globalHierarchy via API
 function RemoveDataFromGlobalHierarchy(parentKey, keyToRemove) {
@@ -773,9 +699,9 @@ function RemoveDataFromGlobalHierarchy(parentKey, keyToRemove) {
         },
         body: JSON.stringify({ parentKey, keyToRemove })
     })
-    .then(response => response.json())
-    .then(data => console.log(data.message))
-    .catch(error => console.error('Error:', error));
+        .then(response => response.json())
+        .then(data => console.log(data.message))
+        .catch(error => console.error('Error:', error));
 }
 // Function to change object in globalHierarchy via API
 function changeDataInGlobalHierarchy(parentKey, oldKey, newKey) {
@@ -786,7 +712,7 @@ function changeDataInGlobalHierarchy(parentKey, oldKey, newKey) {
         },
         body: JSON.stringify({ parentKey, oldKey, newKey })
     })
-    .then(response => response.json())
-    .then(data => console.log(data.message))
-    .catch(error => console.error('Error:', error));
+        .then(response => response.json())
+        .then(data => console.log(data.message))
+        .catch(error => console.error('Error:', error));
 }
